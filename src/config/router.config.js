@@ -80,6 +80,13 @@ export const asyncRouterMap = [
         component: () => import('@/views/trading-bot'),
         meta: { title: 'menu.dashboard.tradingBot', keepAlive: true, icon: 'robot', permission: ['dashboard'] }
       },
+      // 6. 实盘券商账户（Alpaca / IBKR / MT5 统一连接 + 账户/持仓/挂单）
+      {
+        path: '/broker-accounts',
+        name: 'BrokerAccounts',
+        component: () => import('@/views/broker-accounts'),
+        meta: { title: 'menu.dashboard.brokerAccounts', keepAlive: true, icon: 'bank', permission: ['dashboard'] }
+      },
       // 旧路由兼容：图表与指标 → 指标 IDE
       {
         path: '/indicator-analysis',
