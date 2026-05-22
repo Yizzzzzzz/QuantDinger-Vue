@@ -1613,7 +1613,8 @@ export default {
           phone: values.phone || '',
           discord_webhook: values.discord_webhook || '',
           webhook_url: values.webhook_url || '',
-          webhook_token: values.webhook_token || ''
+          webhook_token: values.webhook_token || '',
+          webhook_signing_secret: values.webhook_signing_secret || ''
         })
 
         if (saveRes.code !== 1) {
