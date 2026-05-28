@@ -1346,6 +1346,7 @@
 import { getStrategyList, startStrategy, stopStrategy, deleteStrategy, updateStrategy, createStrategy, getStrategyEquityCurve, getStrategyPositions, batchCreateStrategies, batchStartStrategies, batchStopStrategies, batchDeleteStrategies } from '@/api/strategy'
 import { getWatchlist, addWatchlist, searchSymbols, getHotSymbols } from '@/api/market'
 import { listExchangeCredentials } from '@/api/credentials'
+import { formatExchangeCredentialLabel } from '@/utils/exchangeCredential'
 import { getNotificationSettings } from '@/api/user'
 import { baseMixin } from '@/store/app-mixin'
 import request from '@/utils/request'
@@ -2429,11 +2430,7 @@ export default {
       }
     },
     formatCredentialLabel (cred) {
-      if (!cred) return ''
-      const name = (cred.name || '').trim()
-      const ex = cred.exchange_id || ''
-      const hint = cred.api_key_hint || ''
-      return name ? `${ex.toUpperCase()} - ${name} (${hint})` : `${ex.toUpperCase()} (${hint})`
+      return formatExchangeCredentialLabel(cred)
     },
     // Check if credential is compatible with current market category.
     //
@@ -2452,6 +2449,36 @@ export default {
       const supported = matrix[exchangeId]
       if (!supported) return false
       return Object.prototype.hasOwnProperty.call(supported, marketCategory)
+    },
+    buildLiveExchangeConfig (values) {
+      if (values.credential_id) {
+        return {
+          credential_id: values.credential_id,
+          exchange_id: this.currentExchangeId || undefined
+        }
+      }
+      if (this.isIBKRMarket) {
+        return {
+          exchange_id: values.broker_id || this.currentBrokerId || 'ibkr',
+          ibkr_host: values.ibkr_host || '127.0.0.1',
+          ibkr_port: values.ibkr_port || 7497,
+          ibkr_client_id: values.ibkr_client_id || 1,
+          ibkr_account: values.ibkr_account || ''
+        }
+      }
+      if (this.isMT5Market) {
+        return {
+          exchange_id: values.forex_broker_id || this.currentBrokerId || 'mt5',
+          mt5_server: values.mt5_server || '',
+          mt5_login: values.mt5_login || '',
+          mt5_password: values.mt5_password || '',
+          mt5_terminal_path: values.mt5_terminal_path || ''
+        }
+      }
+      return {
+        credential_id: values.credential_id,
+        exchange_id: this.currentExchangeId || undefined
+      }
     },
     async handleCredentialSelectChange (credentialId) {
       // Selecting a saved credential updates the exchange_id UI state.
@@ -3781,6 +3808,17 @@ export default {
                 marketCategory = symbol.slice(0, idx) || 'Crypto'
                 symbol = symbol.slice(idx + 1)
               }
+              this.selectedMarketCategory = marketCategory
+
+              const isLive = this.canUseLiveTrading && (values.execution_mode || 'signal') === 'live'
+              if (isLive) {
+                const credentialId = values.credential_id
+                if (!credentialId) {
+                  this.$message.warning(this.$t('trading-assistant.validation.credentialRequired'))
+                  this.saving = false
+                  return
+                }
+              }
 
               let marketType = (values.market_type === 'futures' ? 'swap' : (values.market_type || 'swap'))
               let leverage = values.leverage != null ? values.leverage : 5
@@ -3834,6 +3872,7 @@ export default {
                 market_category: marketCategory,
                 execution_mode: values.execution_mode || 'signal',
                 notification_config: notificationConfig,
+                exchange_config: isLive ? this.buildLiveExchangeConfig(values) : undefined,
                 trading_config: tradingConfig
               }
 
@@ -3958,28 +3997,7 @@ export default {
                 indicator_name: indicator.name,
                 indicator_code: indicator.code || ''
               },
-              exchange_config: isLive ? (this.isIBKRMarket ? {
-                // Broker configuration (US stocks)
-                exchange_id: values.broker_id || this.currentBrokerId || 'ibkr',
-                // IBKR specific fields
-                ibkr_host: values.ibkr_host || '127.0.0.1',
-                ibkr_port: values.ibkr_port || 7497,
-                ibkr_client_id: values.ibkr_client_id || 1,
-                ibkr_account: values.ibkr_account || ''
-              } : this.isMT5Market ? {
-                // MT5/Forex broker configuration
-                exchange_id: values.forex_broker_id || this.currentBrokerId || 'mt5',
-                // MT5 specific fields
-                mt5_server: values.mt5_server || '',
-                mt5_login: values.mt5_login || '',
-                mt5_password: values.mt5_password || '',
-                mt5_terminal_path: values.mt5_terminal_path || ''
-              } : {
-                // Crypto exchange configuration — only store credential reference.
-                // Raw API keys live in qd_exchange_credentials; resolved at execution time.
-                credential_id: values.credential_id,
-                exchange_id: this.currentExchangeId || undefined
-              }) : undefined,
+              exchange_config: isLive ? this.buildLiveExchangeConfig(values) : undefined,
               trading_config: {
                 initial_capital: values.initial_capital,
                 leverage: leverage,

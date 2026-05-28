@@ -8,7 +8,7 @@ import { getBrandConfig } from '@/api/brand'
  */
 const DEFAULT_BRAND = {
   app_name: 'QuantDinger',
-  app_version: '3.0.3',
+  app_version: '3.0.15',
   copyright: '© 2025-2026 QuantDinger. All rights reserved.',
   logos: {
     light: '',
@@ -17,7 +17,7 @@ const DEFAULT_BRAND = {
     favicon: ''
   },
   contact: {
-    email: 'brokermr810@gmail.com',
+    email: 'support@quantdinger.com',
     support_url: 'https://t.me/quantdinger',
     feature_request_url: 'https://github.com/brokermr810/QuantDinger/issues',
     live_chat_url: 'https://t.me/quantdinger'
