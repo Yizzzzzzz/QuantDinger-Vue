@@ -281,6 +281,9 @@ export default {
     const localKeys = Object.keys(this.$data)
     const showAlert = (typeof this.alert === 'object' && this.alert !== null && this.alert.show) && typeof this.rowSelection.selectedRowKeys !== 'undefined' || this.alert
 
+    // Mobile: enable horizontal scrolling for table wrapper
+    const tableWrapperClass = 'table-wrapper'
+
     Object.keys(T.props).forEach(k => {
       const localKey = `local${k.substring(0, 1).toUpperCase()}${k.substring(1)}`
       if (localKeys.includes(localKey)) {
@@ -316,7 +319,7 @@ export default {
     )
 
     return (
-      <div class="table-wrapper">
+      <div class={tableWrapperClass}>
         { showAlert ? this.renderAlert() : null }
         { table }
       </div>

@@ -2566,6 +2566,25 @@ export default {
     .ranking-grid {
       grid-template-columns: 1fr;
     }
+
+    // 优化表格在移动端的显示
+    .pro-table {
+      ::v-deep .ant-table {
+        font-size: 12px;
+      }
+      ::v-deep .ant-table-thead > tr > th,
+      ::v-deep .ant-table-tbody > tr > td {
+        padding: 8px 10px;
+      }
+    }
+
+    // 优化订单面板的横向滚动
+    .orders-panel {
+      ::v-deep .ant-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
   }
 }
 </style>

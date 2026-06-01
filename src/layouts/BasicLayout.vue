@@ -21,9 +21,9 @@
           增加 Header 左侧内容区自定义
     -->
       <template #headerContentRender>
-        <div>
+        <div style="display: flex; align-items: center; height: 100%;">
           <a-tooltip :title="$t('menu.header.refreshPage')">
-            <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="handleRefresh" />
+            <a-icon type="reload" style="font-size: 20px; cursor: pointer; padding: 8px;" @click="handleRefresh" />
           </a-tooltip>
         </div>
       </template>
@@ -236,7 +236,7 @@ export default {
       return this.brandConfig
     },
     appVersion () {
-      return (this.brandConfig && this.brandConfig.app_version) || defaultSettings.appVersion || '3.0.15'
+      return (this.brandConfig && this.brandConfig.app_version) || defaultSettings.appVersion || '3.0.3'
     },
     // Logo 优先用后端 BRAND_LOGO_*_URL；为空时回退到打包好的 assets/logo.png
     currentLogo () {
@@ -731,6 +731,9 @@ export default {
     /* 手机端：当菜单在 drawer 中时，需要更高的 z-index */
     @media (max-width: 768px) {
       z-index: 1001; /* drawer 的 z-index 通常是 1000 */
+      left: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
 
       /* 当 drawer 未打开时，隐藏 footer */
       &:not(.drawer-open) {

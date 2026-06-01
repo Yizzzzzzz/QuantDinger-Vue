@@ -14,6 +14,8 @@
       </div>
       <div
         class="radar-carousel"
+        @touchstart="oppHover = true"
+        @touchend="oppHover = false"
         @mouseenter="oppHover = true"
         @mouseleave="oppHover = false"
       >
@@ -720,11 +722,11 @@ export default {
     }
 
     .qt-floating-btn {
-      right: ~"max(8px, env(safe-area-inset-right, 0px))";
-      bottom: ~"max(68px, calc(52px + env(safe-area-inset-bottom, 0px)))";
-      width: 44px;
-      height: 44px;
-      font-size: 20px;
+      right: ~"max(16px, env(safe-area-inset-right, 0px))";
+      bottom: ~"max(80px, calc(52px + env(safe-area-inset-bottom, 0px)))";
+      width: 48px;
+      height: 48px;
+      font-size: 22px;
     }
 
     .workspace-card {

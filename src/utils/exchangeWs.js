@@ -11,8 +11,15 @@ const EXCHANGE_WS = {
   binance: {
     base: 'wss://stream.binance.com:9443/ws',
     buildUrl (symbol, interval) {
-      const s = symbol.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
-      return `${this.base}/${s}@kline_${interval}`
+      const isSwap = symbol && (symbol.includes(':') || symbol.toUpperCase().endsWith('-SWAP') || symbol.toUpperCase().endsWith('-PERP'))
+      let cleanSymbol = symbol
+      if (symbol.includes(':')) {
+        cleanSymbol = symbol.split(':')[0]
+      }
+      cleanSymbol = cleanSymbol.replace(/-SWAP$/i, '').replace(/-PERP$/i, '')
+      const s = cleanSymbol.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+      const baseUrl = isSwap ? 'wss://fstream.binance.com/ws' : 'wss://stream.binance.com:9443/ws'
+      return `${baseUrl}/${s}@kline_${interval}`
     },
     parseBar (data) {
       if (data.e !== 'kline' || !data.k) return null
@@ -67,9 +74,11 @@ const EXCHANGE_WS = {
     buildUrl () { return this.base },
     subscribe (ws, symbol, interval) {
       const instId = _toBitgetInstId(symbol)
+      const isSwap = symbol.includes(':') || symbol.toUpperCase().endsWith('-SWAP') || symbol.toUpperCase().endsWith('-PERP')
+      const instType = isSwap ? 'USDT-FUTURES' : 'SPOT'
       ws.send(JSON.stringify({
         op: 'subscribe',
-        args: [{ instType: 'SPOT', channel: 'candle' + interval, instId }]
+        args: [{ instType, channel: 'candle' + interval, instId }]
       }))
     },
     parseBar (data) {
@@ -94,9 +103,17 @@ const EXCHANGE_WS = {
 
   bybit: {
     base: 'wss://stream.bybit.com/v5/public/spot',
-    buildUrl () { return this.base },
+    buildUrl (symbol) {
+      const isSwap = symbol && (symbol.includes(':') || symbol.toUpperCase().endsWith('-SWAP') || symbol.toUpperCase().endsWith('-PERP'))
+      return isSwap ? 'wss://stream.bybit.com/v5/public/linear' : 'wss://stream.bybit.com/v5/public/spot'
+    },
     subscribe (ws, symbol, interval) {
-      const s = symbol.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+      let cleanSymbol = symbol
+      if (symbol.includes(':')) {
+        cleanSymbol = symbol.split(':')[0]
+      }
+      cleanSymbol = cleanSymbol.replace(/-SWAP$/i, '').replace(/-PERP$/i, '')
+      const s = cleanSymbol.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
       ws.send(JSON.stringify({
         op: 'subscribe',
         args: [`kline.${interval}.${s}`]
@@ -126,16 +143,22 @@ const EXCHANGE_WS = {
     base: 'wss://api.gateio.ws/ws/v4/',
     buildUrl () { return this.base },
     subscribe (ws, symbol, interval) {
-      const s = symbol.replace('/', '_').toUpperCase()
+      let cleanSymbol = symbol
+      const isSwap = symbol.includes(':') || symbol.toUpperCase().endsWith('-SWAP') || symbol.toUpperCase().endsWith('-PERP')
+      if (symbol.includes(':')) {
+        cleanSymbol = symbol.split(':')[0]
+      }
+      cleanSymbol = cleanSymbol.replace(/-SWAP$/i, '').replace(/-PERP$/i, '')
+      const s = cleanSymbol.replace('/', '_').toUpperCase()
       ws.send(JSON.stringify({
         time: Math.floor(Date.now() / 1000),
-        channel: 'spot.candlesticks',
+        channel: isSwap ? 'futures.candlesticks' : 'spot.candlesticks',
         event: 'subscribe',
         payload: [interval, s]
       }))
     },
     parseBar (data) {
-      if (data.channel !== 'spot.candlesticks' || data.event !== 'update') return null
+      if ((data.channel !== 'spot.candlesticks' && data.channel !== 'futures.candlesticks') || data.event !== 'update') return null
       const c = data.result
       if (!c) return null
       return {
@@ -175,13 +198,34 @@ function getInterval (exchange, timeframe) {
 // ── Symbol formatters ───────────────────────────────────────
 
 function _toOkxInstId (symbol) {
-  const parts = symbol.split('/')
-  if (parts.length === 2) return `${parts[0].toUpperCase()}-${parts[1].toUpperCase()}`
+  let cleanSymbol = symbol
+  let isSwap = false
+  if (symbol.includes(':')) {
+    cleanSymbol = symbol.split(':')[0]
+    isSwap = true
+  }
+  if (symbol.toUpperCase().endsWith('-SWAP') || symbol.toUpperCase().endsWith('-PERP')) {
+    cleanSymbol = symbol.replace(/-SWAP$/i, '').replace(/-PERP$/i, '')
+    isSwap = true
+  }
+  const parts = cleanSymbol.split('/')
+  if (parts.length === 2) {
+    const base = parts[0].toUpperCase()
+    const quote = parts[1].toUpperCase()
+    return isSwap ? `${base}-${quote}-SWAP` : `${base}-${quote}`
+  }
   return symbol.replace(/[^a-zA-Z0-9]/g, '-').toUpperCase()
 }
 
 function _toBitgetInstId (symbol) {
-  const parts = symbol.split('/')
+  let cleanSymbol = symbol
+  if (symbol.includes(':')) {
+    cleanSymbol = symbol.split(':')[0]
+  }
+  if (symbol.toUpperCase().endsWith('-SWAP') || symbol.toUpperCase().endsWith('-PERP')) {
+    cleanSymbol = symbol.replace(/-SWAP$/i, '').replace(/-PERP$/i, '')
+  }
+  const parts = cleanSymbol.split('/')
   if (parts.length === 2) return `${parts[0].toUpperCase()}${parts[1].toUpperCase()}`
   return symbol.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
 }

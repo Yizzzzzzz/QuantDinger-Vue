@@ -226,6 +226,7 @@ export default {
   setup (props, { emit }) {
     // K线数据
     const klineData = shallowRef([])
+    const resolvedSymbol = ref(props.symbol)
     const loading = ref(false)
     const error = ref(null)
     const loadingHistory = ref(false)
@@ -1669,6 +1670,11 @@ registerOverlay({
 
           if (response.code === 1 && response.data && Array.isArray(response.data)) {
             formattedData = formatKlineData(response.data)
+            if (response.symbol) {
+              resolvedSymbol.value = response.symbol
+            } else {
+              resolvedSymbol.value = props.symbol
+            }
           } else {
             // 特殊处理 Tiingo 订阅限制提示
             let errMsg = response.msg || '获取K线数据失败'
@@ -2284,7 +2290,7 @@ registerOverlay({
           if (!wsClient) {
             wsClient = new ExchangeKlineWs()
           }
-          wsClient.connect(props.symbol, props.timeframe, {
+          wsClient.connect(resolvedSymbol.value || props.symbol, props.timeframe, {
             onTick: handleWsTick,
             onNewBar: handleWsNewBar,
             onError: handleWsError,
@@ -3799,6 +3805,7 @@ registerOverlay({
 
     // 生命周期
     watch(() => props.symbol, () => {
+      resolvedSymbol.value = props.symbol
       if (props.symbol) {
         loadKlineData()
       }
