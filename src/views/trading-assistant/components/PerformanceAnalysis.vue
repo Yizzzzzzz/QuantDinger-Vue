@@ -14,7 +14,12 @@
               </div>
               <div class="metric-body">
                 <div class="metric-label">{{ card.label }}</div>
-                <div class="metric-value" :class="card.valueClass">{{ card.display }}</div>
+                <div class="metric-value" :class="card.valueClass">
+                  {{ card.display }}
+                  <span v-if="card.subDisplay" class="metric-sub-value">
+                    ({{ card.subDisplay }})
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -134,6 +139,7 @@ export default {
           key: 'totalReturn',
           label: this.$t('trading-assistant.performance.totalReturn'),
           display: fmt(m.totalReturn),
+          subDisplay: this.formatProfitAmount(m.totalReturnAmount),
           cardClass: this.cardTone(m.totalReturn),
           iconClass: 'icon-return',
           icon: 'line-chart',
@@ -363,6 +369,7 @@ export default {
       const final = equities[equities.length - 1] || initial
 
       const totalReturn = initial > 0 ? (final - initial) / initial : 0
+      const totalReturnAmount = final - initial
 
       let maxPeak = equities[0]
       let maxDrawdown = 0
@@ -437,6 +444,7 @@ export default {
 
       this.metrics = {
         totalReturn,
+        totalReturnAmount,
         annualReturn,
         maxDrawdown,
         sharpe,
@@ -568,6 +576,12 @@ export default {
     formatPercent (val) {
       if (val === undefined || val === null || isNaN(val)) return '—'
       return (val >= 0 ? '+' : '') + (val * 100).toFixed(2) + '%'
+    },
+    formatProfitAmount (val) {
+      if (val === undefined || val === null || isNaN(val)) return '—'
+      const v = Number(val)
+      const sign = v > 0 ? '+' : (v < 0 ? '-' : '')
+      return `${sign}$${Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     }
   }
 }
@@ -676,6 +690,13 @@ export default {
   font-variant-numeric: tabular-nums;
   color: #0f172a;
   line-height: 1.2;
+}
+
+.metric-sub-value {
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 6px;
+  opacity: 0.85;
 }
 
 .metric-val-pos {

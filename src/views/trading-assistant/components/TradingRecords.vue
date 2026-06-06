@@ -8,7 +8,8 @@
       :columns="columns"
       :data-source="records"
       :loading="loading"
-      :pagination="{ pageSize: 10 }"
+      :pagination="paginationConfig"
+      @change="handleTableChange"
       size="small"
       rowKey="id"
       :scroll="{ x: 800 }"
@@ -66,6 +67,12 @@ export default {
     }
   },
   computed: {
+    paginationConfig () {
+      return {
+        ...this.pagination,
+        showTotal: (total) => this.$t('ai-trading-assistant.table.totalRecords', { total })
+      }
+    },
     columns () {
       return [
         {
@@ -122,7 +129,13 @@ export default {
   },
   data () {
     return {
-      records: []
+      records: [],
+      pagination: {
+        current: 1,
+        pageSize: 10,
+        showSizeChanger: true,
+        pageSizeOptions: ['10', '20', '50', '100']
+      }
     }
   },
   watch: {
@@ -136,8 +149,13 @@ export default {
     }
   },
   methods: {
+    handleTableChange (pagination) {
+      this.pagination.current = pagination.current
+      this.pagination.pageSize = pagination.pageSize
+    },
     async loadRecords () {
       if (!this.strategyId) return
+      this.pagination.current = 1
 
       try {
         const res = await getStrategyTrades(this.strategyId)
