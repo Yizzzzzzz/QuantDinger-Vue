@@ -27,7 +27,7 @@
       <!-- 图表内容区域 -->
       <div class="chart-content-area">
         <!-- 指标工具栏 -->
-        <div class="indicator-toolbar">
+        <div v-if="!hideIndicatorToolbar" class="indicator-toolbar">
           <div
             v-for="indicator in indicatorButtons"
             :key="indicator.id"
@@ -73,7 +73,7 @@
           </div>
         </div>
         <div
-          id="kline-chart-container"
+          ref="chartContainerRef"
           class="kline-chart-container"
         ></div>
         <canvas
@@ -220,6 +220,10 @@ export default {
     userId: {
       type: Number,
       default: null
+    },
+    hideIndicatorToolbar: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['retry', 'price-change', 'load', 'indicator-toggle'],
@@ -245,7 +249,16 @@ export default {
     /** 成交量副图：VOL 只能创建一次；onDataReady/resize 仅做 layout，否则会叠很多层 VOL */
     let volEnsureRafId = null
     let volPaneEnsured = false
-    const VOL_PANE_OPTIONS = { height: 96, minHeight: 52, dragEnabled: true }
+    const VOL_PANE_OPTIONS = {
+      height: props.hideIndicatorToolbar ? 52 : 96,
+      minHeight: props.hideIndicatorToolbar ? 30 : 52,
+      dragEnabled: true
+    }
+    const subPaneOptions = {
+      height: props.hideIndicatorToolbar ? 52 : 100,
+      minHeight: props.hideIndicatorToolbar ? 30 : 52,
+      dragEnabled: true
+    }
     const syncVolumePaneLayout = () => {
       if (!chartRef.value) return
       if (!volPaneEnsured && typeof chartRef.value.createIndicator === 'function') {
@@ -270,6 +283,7 @@ export default {
       })
     }
 
+    const chartContainerRef = ref(null)
     const wmCanvasRef = ref(null)
     /** 用于全屏时 Modal 挂到与 K 线同一全屏子树（见 chartModalGetContainer） */
     const chartRootEl = ref(null)
@@ -2324,14 +2338,14 @@ registerOverlay({
 
     // --- 图表初始化函数 ---
     const initChart = () => {
-      const container = document.getElementById('kline-chart-container')
+      const container = chartContainerRef.value
       if (!container) return
 
       if (container.clientWidth === 0 || container.clientHeight === 0) {
         let retryCount = 0
         const maxRetries = 10
         const checkAndInit = () => {
-          const checkContainer = document.getElementById('kline-chart-container')
+          const checkContainer = chartContainerRef.value
           if (checkContainer && checkContainer.clientWidth > 0 && checkContainer.clientHeight > 0) {
             initChart()
           } else if (retryCount < maxRetries) {
@@ -2356,7 +2370,7 @@ registerOverlay({
 
       try {
         // 初始化 KLineChart
-        const container = document.getElementById('kline-chart-container')
+        const container = chartContainerRef.value
         if (!container) {
           throw new Error('容器元素不存在')
         }
@@ -2631,7 +2645,7 @@ registerOverlay({
           }
         }, 100)
       } else {
-        const container = document.getElementById('kline-chart-container')
+        const container = chartContainerRef.value
         if (container && container.clientWidth > 0 && container.clientHeight > 0) {
           initChart()
         }
@@ -3073,7 +3087,7 @@ registerOverlay({
                           const indicatorId = chartRef.value.createIndicator(
                             customIndicatorName,
                             false,
-                            { height: 100, dragEnabled: true }
+                            subPaneOptions
                           )
                           if (indicatorId) {
                             addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
@@ -3293,7 +3307,7 @@ registerOverlay({
                           const indicatorId = chartRef.value.createIndicator(
                             customIndicatorName,
                             false,
-                            { height: 100, dragEnabled: true }
+                            subPaneOptions
                           )
                           if (indicatorId) {
                             addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
@@ -3398,7 +3412,7 @@ registerOverlay({
                 [fast, slow, signal]
               )
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3420,7 +3434,7 @@ registerOverlay({
                 [length]
               )
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3483,7 +3497,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3514,7 +3528,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3546,7 +3560,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3577,7 +3591,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3608,7 +3622,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3635,7 +3649,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3668,7 +3682,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3697,7 +3711,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3739,7 +3753,7 @@ registerOverlay({
               )
 
               if (registered) {
-                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, { height: 100, dragEnabled: true })
+                const indicatorId = chartRef.value.createIndicator(customIndicatorName, false, subPaneOptions)
                 if (indicatorId) {
                   addedIndicatorIds.value.push({ paneId: indicatorId, name: customIndicatorName })
                 }
@@ -3750,7 +3764,7 @@ registerOverlay({
             // 尝试直接用 indicator.id 创建（假设是内置指标名）
             try {
               const indicatorName = indicator.id.toUpperCase()
-              const indicatorId = chartRef.value.createIndicator(indicatorName, false, { height: 100, dragEnabled: true })
+              const indicatorId = chartRef.value.createIndicator(indicatorName, false, subPaneOptions)
               if (indicatorId) {
                 addedIndicatorIds.value.push({ paneId: indicatorId, name: indicatorName })
               }
@@ -3870,14 +3884,14 @@ registerOverlay({
 
       nextTick(() => {
         setTimeout(() => {
-          if (!chartRef.value && props.symbol) {
-            initChart()
+          if (props.symbol) {
+            loadKlineData()
           }
         }, 300)
       })
 
       nextTick(() => {
-        const el = document.getElementById('kline-chart-container')
+        const el = chartContainerRef.value
         if (!el || typeof ResizeObserver === 'undefined') return
         chartResizeObserver = new ResizeObserver(() => {
           if (chartResizeRafId != null) cancelAnimationFrame(chartResizeRafId)
@@ -3887,7 +3901,7 @@ registerOverlay({
               chartRef.value.resize()
               scheduleSyncVolumePaneLayout()
             } else {
-              const c = document.getElementById('kline-chart-container')
+              const c = chartContainerRef.value
               if (c && c.clientWidth > 0 && c.clientHeight > 0) {
                 initChart()
               }
@@ -3997,7 +4011,7 @@ registerOverlay({
       }
       if (_wmTimer) { clearInterval(_wmTimer); _wmTimer = null }
       if (_wmObserver) { _wmObserver.disconnect(); _wmObserver = null }
-      const chartContainer = document.getElementById('kline-chart-container')
+      const chartContainer = chartContainerRef.value
       if (chartContainer && shiftMeasurePointerDownHandler) {
         chartContainer.removeEventListener('pointerdown', shiftMeasurePointerDownHandler, true)
         shiftMeasurePointerDownHandler = null
@@ -4011,6 +4025,7 @@ registerOverlay({
     })
 
     return {
+      chartContainerRef,
       klineData,
       loading,
       error,

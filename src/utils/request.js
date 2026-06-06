@@ -129,7 +129,7 @@ request.interceptors.request.use(config => {
 
   // 使用统一的 token 获取函数
   const token = getToken()
-  const lang = storage.get(LOCALE_KEY) || 'en-US'
+  const lang = storage.get(LOCALE_KEY) || 'zh-CN'
 
   // Tell backend which UI language user is using, so AI reports can match it.
   // We keep both a custom header and the standard Accept-Language for compatibility.

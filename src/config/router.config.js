@@ -35,6 +35,13 @@ export const asyncRouterMap = [
         component: () => import('@/views/indicator-ide'),
         meta: { title: 'menu.dashboard.indicatorIde', keepAlive: true, icon: 'code', permission: ['dashboard'] }
       },
+      // 3.5 多列个股走势
+      {
+        path: '/multi-column-monitor',
+        name: 'MultiColumnMonitor',
+        component: () => import('@/views/multi-column-monitor'),
+        meta: { title: 'menu.dashboard.multiColumnMonitor', keepAlive: true, icon: 'layout', permission: ['dashboard'] }
+      },
       // 4. 策略与实盘（指标信号策略：创建 / 管理 / 与实盘联动；不含 Python 脚本策略）
       {
         path: '/strategy-live',

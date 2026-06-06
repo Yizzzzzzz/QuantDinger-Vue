@@ -46,6 +46,7 @@
       <bot-type-cards
         @select="handleSelectBotType"
         @ai-create="showAiDialog = true"
+        @script-create="goToScriptStrategies"
       />
 
       <!-- AI 智能创建弹窗 -->

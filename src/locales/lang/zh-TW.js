@@ -35,6 +35,7 @@ const locale = {
 'menu.dashboard.tradingAssistant': '交易助手',
 'menu.dashboard.backtestCenter': '回測中心',
 'menu.dashboard.indicatorIde': '指標 IDE',
+'menu.dashboard.multiColumnMonitor': '多列個股走勢',
 'indicatorIde.direction': '交易方向',
 'indicatorIde.tuningLaunchTitle': '智能調參',
 'indicatorIde.tuningLaunchDesc': '自動搜尋最佳策略參數以提升回測報酬。選擇下方調參方式後點擊執行。',
@@ -5004,7 +5005,21 @@ const locale = {
   'authorDashboard.totalCount': '共 {total} 條',
   'authorDashboard.filteredBy': '已過濾',
   'authorDashboard.clearFilter': '清除過濾',
-  'authorDashboard.anonymousBuyer': '匿名使用者'
+  'authorDashboard.anonymousBuyer': '匿名使用者',
+  // ---- 多列個股走勢頁 ----
+  'multi-column-monitor.layout': '網格版面',
+  'multi-column-monitor.syncTimeframe': '同步週期',
+  'multi-column-monitor.syncIndicators': '同步指標',
+  'multi-column-monitor.saveLayout': '儲存目前版面',
+  'multi-column-monitor.resetLayout': '重設版面',
+  'multi-column-monitor.emptyTitle': '請選擇要監控的股票/代幣',
+  'multi-column-monitor.emptyDesc': '您可以從您的自選列表中選取，或者直接搜尋股票代碼。',
+  'multi-column-monitor.quickPick': '快捷選擇：',
+  'multi-column-monitor.searchPlaceholder': '搜尋交易對或股票代碼...',
+  'multi-column-monitor.addSymbol': '新增自選股',
+  'multi-column-monitor.confirmDeleteCell': '確定要清空這個圖表單元格嗎？',
+  'multi-column-monitor.layoutSaved': '版面配置已成功儲存！',
+  'multi-column-monitor.layoutReset': '版面配置已重設為預設值。'
 
 }
 

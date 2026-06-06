@@ -1,6 +1,12 @@
 <template>
-  <div class="trading-assistant" :class="{ 'theme-dark': isDarkTheme }">
-    <div v-if="showAssistantGuide" class="assistant-guide-bar">
+  <div class="trading-assistant-wrapper" :class="{ 'theme-dark': isDarkTheme, 'has-back-button': isScriptStrategiesOnlyPage }">
+    <div v-if="isScriptStrategiesOnlyPage" class="detail-back">
+      <a-button type="link" @click="$router.push({ path: '/trading-bot' })">
+        <a-icon type="arrow-left" /> {{ $t('trading-bot.backToList') }}
+      </a-button>
+    </div>
+    <div class="trading-assistant" :class="{ 'theme-dark': isDarkTheme }">
+      <div v-if="showAssistantGuide" class="assistant-guide-bar">
       <div class="assistant-guide-copy">
         <div class="assistant-guide-eyebrow">{{ $t('trading-assistant.guide.eyebrow') }}</div>
         <div class="assistant-guide-title">{{ $t('trading-assistant.guide.title') }}</div>
@@ -1339,6 +1345,7 @@
       :visible.sync="showExchangeAccountModal"
       @success="handleExchangeAccountCreated"
     />
+    </div>
   </div>
 </template>
 
@@ -4263,10 +4270,44 @@ export default {
 @border-radius-md: 12px;
 @border-radius-sm: 8px;
 
+.trading-assistant-wrapper {
+  .detail-back {
+    margin-bottom: 12px;
+
+    .ant-btn-link {
+      padding: 0;
+      font-size: 14px;
+      color: #8c8c8c;
+
+      &:hover { color: #1890ff; }
+    }
+  }
+
+  &.has-back-button {
+    .trading-assistant {
+      height: calc(100vh - 168px);
+      .strategy-layout {
+        height: calc(100vh - 168px);
+      }
+    }
+  }
+
+  &.theme-dark {
+    .detail-back {
+      .ant-btn-link {
+        color: rgba(255, 255, 255, 0.45);
+        &:hover { color: #177ddc; }
+      }
+    }
+  }
+}
+
 .trading-assistant {
   padding: 0px;
   height: calc(100vh - 120px);
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  overflow: hidden;
 
   .strategy-layout {
     height: calc(100vh - 120px);

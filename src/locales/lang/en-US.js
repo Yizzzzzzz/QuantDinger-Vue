@@ -40,6 +40,7 @@ const locale = {
   'menu.dashboard.tradingAssistant': 'Strategy & Live',
   'menu.dashboard.backtestCenter': 'Backtest Center',
   'menu.dashboard.indicatorIde': 'Indicator IDE',
+  'menu.dashboard.multiColumnMonitor': 'Multi-column Monitor',
   'menu.dashboard.tradingBot': 'Trading Bot',
   'menu.dashboard.brokerAccounts': 'Live Broker Accounts',
   'menu.dashboard.scriptStrategies': 'Python Script Strategies',
@@ -5135,7 +5136,21 @@ const locale = {
   'authorDashboard.totalCount': 'Total: {total}',
   'authorDashboard.filteredBy': 'Filtered by',
   'authorDashboard.clearFilter': 'Clear filter',
-  'authorDashboard.anonymousBuyer': 'Anonymous buyer'
+  'authorDashboard.anonymousBuyer': 'Anonymous buyer',
+  // ---- Multi-column Monitor Page ----
+  'multi-column-monitor.layout': 'Grid Layout',
+  'multi-column-monitor.syncTimeframe': 'Sync Timeframe',
+  'multi-column-monitor.syncIndicators': 'Sync Indicators',
+  'multi-column-monitor.saveLayout': 'Save Layout',
+  'multi-column-monitor.resetLayout': 'Reset Layout',
+  'multi-column-monitor.emptyTitle': 'Choose a Symbol to monitor',
+  'multi-column-monitor.emptyDesc': 'Pick a symbol from your watchlist or search using code.',
+  'multi-column-monitor.quickPick': 'Quick Pick:',
+  'multi-column-monitor.searchPlaceholder': 'Search symbol...',
+  'multi-column-monitor.addSymbol': 'Add Symbol',
+  'multi-column-monitor.confirmDeleteCell': 'Are you sure you want to clear this chart?',
+  'multi-column-monitor.layoutSaved': 'Layout configuration saved successfully!',
+  'multi-column-monitor.layoutReset': 'Layout configuration reset to default values.'
 
 }
 

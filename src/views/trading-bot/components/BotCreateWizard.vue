@@ -20,6 +20,7 @@
       <a-step :title="$t('trading-bot.wizard.step1')" />
       <a-step :title="$t('trading-bot.wizard.step2')" />
       <a-step :title="$t('trading-bot.wizard.step3')" />
+      <a-step :title="$t('profile.notifications.title') || '通知设置'" />
       <a-step :title="$t('trading-bot.wizard.step4')" />
     </a-steps>
 
@@ -276,8 +277,70 @@
         </a-form-model>
       </div>
 
-      <!-- Step 4: 确认 -->
+      <!-- Step 4: 通知设置 -->
       <div v-show="currentStep === 3" class="step-panel">
+        <a-form-model
+          :label-col="{ span: 6 }"
+          :wrapper-col="{ span: 16 }"
+        >
+          <div class="step-hint" style="margin-bottom: 20px;">
+            <a-icon type="info-circle" />
+            {{ isZhLocale ? '设置机器人触发交易信号时的实时通知方式' : 'Set real-time alerts when the bot triggers trading signals.' }}
+          </div>
+
+          <a-form-model-item :label="isZhLocale ? '通知渠道' : 'Notification Channels'">
+            <a-checkbox-group v-model="notificationChannels" style="width: 100%;">
+              <a-row :gutter="[8, 12]">
+                <a-col :span="8">
+                  <a-checkbox value="browser">
+                    <a-icon type="bell" style="margin-right: 4px;" />
+                    {{ $t('trading-assistant.notify.browser') }}
+                  </a-checkbox>
+                </a-col>
+                <a-col :span="8">
+                  <a-checkbox value="email">
+                    <a-icon type="mail" style="margin-right: 4px;" />
+                    {{ $t('trading-assistant.notify.email') }}
+                  </a-checkbox>
+                </a-col>
+                <a-col :span="8">
+                  <a-checkbox value="telegram">
+                    <a-icon type="message" style="margin-right: 4px;" />
+                    {{ $t('trading-assistant.notify.telegram') }}
+                  </a-checkbox>
+                </a-col>
+                <a-col :span="8">
+                  <a-checkbox value="discord">
+                    <a-icon type="robot" style="margin-right: 4px;" />
+                    {{ $t('trading-assistant.notify.discord') }}
+                  </a-checkbox>
+                </a-col>
+                <a-col :span="8">
+                  <a-checkbox value="webhook">
+                    <a-icon type="link" style="margin-right: 4px;" />
+                    {{ $t('trading-assistant.notify.webhook') }}
+                  </a-checkbox>
+                </a-col>
+                <a-col :span="8">
+                  <a-checkbox value="phone">
+                    <a-icon type="mobile" style="margin-right: 4px;" />
+                    {{ $t('trading-assistant.notify.phone') }}
+                  </a-checkbox>
+                </a-col>
+              </a-row>
+            </a-checkbox-group>
+            <div class="form-hint" style="margin-top: 12px;">
+              {{ isZhLocale ? '交易执行成功或遇到错误时，系统会通过选中的渠道推送消息。' : 'System sends notifications via selected channels when trades succeed or errors occur.' }}
+              <router-link to="/profile?tab=notifications" style="margin-left: 8px;">
+                <a-icon type="setting" /> {{ $t('trading-assistant.form.goToProfile') }}
+              </router-link>
+            </div>
+          </a-form-model-item>
+        </a-form-model>
+      </div>
+
+      <!-- Step 5: 确认 -->
+      <div v-show="currentStep === 4" class="step-panel">
         <div class="confirm-section">
           <h4>{{ $t('trading-bot.wizard.confirmTitle') }}</h4>
           <a-descriptions :column="1" bordered size="small">
@@ -335,6 +398,14 @@
             <a-descriptions-item :label="dailyLossLabel">
               ${{ riskForm.maxDailyLoss }}
             </a-descriptions-item>
+            <a-descriptions-item :label="isZhLocale ? '通知渠道' : 'Notification Channels'">
+              <span v-if="notificationChannels && notificationChannels.length > 0">
+                <a-tag v-for="ch in notificationChannels" :key="ch" color="blue" size="small">
+                  {{ $t(`trading-assistant.notify.${ch}`) }}
+                </a-tag>
+              </span>
+              <span v-else class="text-muted">-</span>
+            </a-descriptions-item>
           </a-descriptions>
 
           <a-alert
@@ -354,7 +425,7 @@
       </a-button>
       <div class="spacer"></div>
       <a-button
-        v-if="currentStep < 3"
+        v-if="currentStep < 4"
         type="primary"
         @click="nextStep"
       >
@@ -531,7 +602,8 @@ export default {
       addSearching: false,
       addSearched: false,
       addingSymbol: false,
-      addSearchTimer: null
+      addSearchTimer: null,
+      notificationChannels: ['browser']
     }
   },
   computed: {
@@ -1019,6 +1091,11 @@ export default {
         : (tc.take_profit_pct ?? 20)
       this.riskForm.maxPosition = this.botType === 'martingale' ? 0 : (tc.max_position ?? 5000)
       this.riskForm.maxDailyLoss = tc.max_daily_loss ?? 500
+      if (bot.notification_config && Array.isArray(bot.notification_config.channels)) {
+        this.notificationChannels = [...bot.notification_config.channels]
+      } else {
+        this.notificationChannels = ['browser']
+      }
     },
     applyAiPreset () {
       if (!this.aiPreset) return
@@ -1357,8 +1434,8 @@ export default {
           entry_trigger_mode: 'immediate'
         },
         notification_config: {
-          channels: ['browser'],
-          targets: {}
+          channels: this.notificationChannels || ['browser'],
+          targets: this.editBot?.notification_config?.targets || {}
         },
         bot_type: this.botType
       }

@@ -1,8 +1,13 @@
 <template>
   <div class="bot-type-cards">
     <div class="section-header">
-      <h3>{{ $t('trading-bot.createNew') }}</h3>
-      <p class="section-desc">{{ $t('trading-bot.createNewDesc') }}</p>
+      <div>
+        <h3>{{ $t('trading-bot.createNew') }}</h3>
+        <p class="section-desc">{{ $t('trading-bot.createNewDesc') }}</p>
+      </div>
+      <a-button type="primary" icon="code-sandbox" @click="$emit('script-create')">
+        新建脚本策略
+      </a-button>
     </div>
 
     <div class="cards-grid">
@@ -123,6 +128,9 @@ export default {
 <style lang="less" scoped>
 .section-header {
   margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   h3 {
     font-size: 16px;
@@ -323,6 +331,11 @@ export default {
 }
 
 @media (max-width: 576px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
   .cards-grid {
     grid-template-columns: 1fr;
   }

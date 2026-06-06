@@ -40,6 +40,7 @@ const locale = {
   'menu.dashboard.tradingAssistant': '策略与实盘',
   'menu.dashboard.backtestCenter': '回测中心',
   'menu.dashboard.indicatorIde': '指标 IDE',
+  'menu.dashboard.multiColumnMonitor': '多列个股走势',
   'menu.dashboard.tradingBot': '交易机器人',
   'menu.dashboard.brokerAccounts': '实盘券商账户',
   'menu.dashboard.scriptStrategies': 'Python 脚本策略',
@@ -4962,7 +4963,21 @@ const locale = {
   'authorDashboard.totalCount': '共 {total} 条',
   'authorDashboard.filteredBy': '已过滤',
   'authorDashboard.clearFilter': '清除过滤',
-  'authorDashboard.anonymousBuyer': '匿名用户'
+  'authorDashboard.anonymousBuyer': '匿名用户',
+  // ---- 多列个股走势页 ----
+  'multi-column-monitor.layout': '网格布局',
+  'multi-column-monitor.syncTimeframe': '同步周期',
+  'multi-column-monitor.syncIndicators': '同步指标',
+  'multi-column-monitor.saveLayout': '保存当前布局',
+  'multi-column-monitor.resetLayout': '重置布局',
+  'multi-column-monitor.emptyTitle': '请选择要监控的股票/代币',
+  'multi-column-monitor.emptyDesc': '您可以从您的自选列表中选取，或者直接搜索股票代码。',
+  'multi-column-monitor.quickPick': '快捷选择：',
+  'multi-column-monitor.searchPlaceholder': '搜索交易对或股票代码...',
+  'multi-column-monitor.addSymbol': '添加自选股',
+  'multi-column-monitor.confirmDeleteCell': '确定要清空这个图表单元格吗？',
+  'multi-column-monitor.layoutSaved': '布局配置已成功保存！',
+  'multi-column-monitor.layoutReset': '布局配置已重置为默认值。'
 }
 
 export default {
