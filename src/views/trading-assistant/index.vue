@@ -1892,7 +1892,8 @@ export default {
         phone: '',
         discord_webhook: '',
         webhook_url: '',
-        webhook_token: ''
+        webhook_token: '',
+        webhook_signing_secret: ''
       },
       // Exchange credentials vault
       loadingExchangeCredentials: false,
@@ -2005,7 +2006,8 @@ export default {
             phone: res.data.phone || '',
             discord_webhook: res.data.discord_webhook || '',
             webhook_url: res.data.webhook_url || '',
-            webhook_token: res.data.webhook_token || ''
+            webhook_token: res.data.webhook_token || '',
+            webhook_signing_secret: res.data.webhook_signing_secret
           }
         }
       } catch (e) {
@@ -2816,7 +2818,15 @@ export default {
       // Editing an existing live strategy: default as acknowledged to avoid blocking edits
       this.liveDisclaimerAckUi = executionMode === 'live'
       const notifyChannels = (strategy.notification_config && strategy.notification_config.channels) || ['browser']
-      this.notifyChannelsUi = Array.isArray(notifyChannels) ? notifyChannels : ['browser']
+      // 如果用户已配置 webhook，默认选中 webhook 通道
+      let initialChannels = Array.isArray(notifyChannels) ? notifyChannels : []
+      if (this.userNotificationSettings.webhook_url && !initialChannels.includes('webhook')) {
+        initialChannels.push('webhook')
+      }
+      if (initialChannels.length === 0) {
+        initialChannels = ['browser']
+      }
+      this.notifyChannelsUi = initialChannels
 
       // Initialize AI filter state
       let aiFilterEnabled = false
@@ -3731,7 +3741,15 @@ export default {
           try {
             const execMode = this.form.getFieldValue('execution_mode') || 'signal'
             this.executionModeUi = execMode
-            const chans = this.form.getFieldValue('notify_channels') || ['browser']
+            let chans = this.form.getFieldValue('notify_channels') || []
+            // 自动包含 webhook 通道（如果已配置）
+            if (this.userNotificationSettings.webhook_url && !chans.includes('webhook')) {
+              chans.push('webhook')
+            }
+            // 保证至少有一个通道
+            if (chans.length === 0) {
+              chans = ['browser']
+            }
             this.notifyChannelsUi = Array.isArray(chans) ? chans : ['browser']
           } catch (e) { }
           this.currentStep = 2
@@ -3767,7 +3785,15 @@ export default {
           try {
             const execMode = this.form.getFieldValue('execution_mode') || 'signal'
             this.executionModeUi = execMode
-            const chans = this.form.getFieldValue('notify_channels') || ['browser']
+            let chans = this.form.getFieldValue('notify_channels') || []
+            // 自动包含 webhook 通道（如果已配置）
+            if (this.userNotificationSettings.webhook_url && !chans.includes('webhook')) {
+              chans.push('webhook')
+            }
+            // 保证至少有一个通道
+            if (chans.length === 0) {
+              chans = ['browser']
+            }
             this.notifyChannelsUi = Array.isArray(chans) ? chans : ['browser']
           } catch (e) { }
           this.currentStep = 1
@@ -3799,7 +3825,8 @@ export default {
                   telegram_bot_token: this.userNotificationSettings.telegram_bot_token || '',
                   discord: this.userNotificationSettings.discord_webhook || '',
                   webhook: this.userNotificationSettings.webhook_url || '',
-                  webhook_token: this.userNotificationSettings.webhook_token || ''
+                  webhook_token: this.userNotificationSettings.webhook_token || '',
+                  webhook_signing_secret: this.userNotificationSettings.webhook_signing_secret || ''
                 }
               }
               if (!notificationConfig.channels || notificationConfig.channels.length === 0) {
@@ -3930,7 +3957,8 @@ export default {
                 telegram_bot_token: this.userNotificationSettings.telegram_bot_token || '',
                 discord: this.userNotificationSettings.discord_webhook || '',
                 webhook: this.userNotificationSettings.webhook_url || '',
-                webhook_token: this.userNotificationSettings.webhook_token || ''
+                webhook_token: this.userNotificationSettings.webhook_token || '',
+                webhook_signing_secret: this.userNotificationSettings.webhook_signing_secret || ''
               }
             }
             if (!notificationConfig.channels || notificationConfig.channels.length === 0) {
@@ -4307,7 +4335,7 @@ export default {
   height: calc(100vh - 120px);
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 12px;
-  overflow: hidden;
+  overflow-y: auto;
 
   .strategy-layout {
     height: calc(100vh - 120px);
@@ -4430,7 +4458,7 @@ export default {
                 font-weight: 600;
                 flex: 1;
                 min-width: 0;
-                overflow: hidden;
+                overflow-y: auto;
                 text-overflow: ellipsis;
                 white-space: nowrap;
               }
@@ -4669,7 +4697,7 @@ export default {
       border-radius: @border-radius-lg;
       box-shadow: @card-shadow;
       border: none;
-      overflow: hidden;
+      overflow-y: auto;
       transition: box-shadow 0.3s ease;
 
       &:hover {
@@ -4761,7 +4789,7 @@ export default {
           background: #fff;
           border-radius: @border-radius-md;
           border: 1px solid #e8ecf1;
-          overflow: hidden;
+          // overflow-y: auto;
 
           .strategy-group-header {
             display: flex;
@@ -4965,7 +4993,6 @@ export default {
                 .strategy-name {
                   flex: 1;
                   min-width: 0;
-                  overflow: hidden;
                   text-overflow: ellipsis;
                   white-space: nowrap;
                 }
@@ -5180,7 +5207,7 @@ export default {
 
         /deep/ .ant-list-item-meta-description {
           max-width: calc(100% - 20px); // 留出空间给右侧操作按钮和选中边框
-          overflow: hidden;
+          overflow-y: auto;
 
           .strategy-item-info {
             display: flex !important;
@@ -5191,7 +5218,7 @@ export default {
             align-items: center;
             flex-wrap: nowrap; // 禁止换行
             max-width: 100%;
-            overflow: hidden;
+            overflow-y: auto;
 
             .status-label {
               display: inline-flex;
@@ -5259,7 +5286,7 @@ export default {
               gap: 4px;
               flex-shrink: 1;
               min-width: 0;
-              overflow: hidden;
+              overflow-y: auto;
               text-overflow: ellipsis;
               white-space: nowrap;
 
@@ -6153,7 +6180,7 @@ export default {
 .strategy-params-collapse {
   background: #fafafa;
   border-radius: 10px;
-  overflow: hidden;
+  overflow-y: auto;
 
   /deep/ .ant-collapse-item {
     border-bottom-color: #f0f0f0;

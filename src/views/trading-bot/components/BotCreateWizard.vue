@@ -505,6 +505,7 @@
 import request from '@/utils/request'
 import { mapGetters } from 'vuex'
 import { createStrategy, updateStrategy } from '@/api/strategy'
+import { getNotificationSettings } from '@/api/user'
 import { listExchangeCredentials } from '@/api/credentials'
 import { formatExchangeCredentialLabel } from '@/utils/exchangeCredential'
 import { getWatchlist, addWatchlist, searchSymbols } from '@/api/market'
@@ -602,8 +603,19 @@ export default {
       addSearching: false,
       addSearched: false,
       addingSymbol: false,
-      addSearchTimer: null,
-      notificationChannels: ['browser']
+       addSearchTimer: null,
+      notificationChannels: ['browser'],
+      userNotificationSettings: {
+        default_channels: ['browser'],
+        telegram_bot_token: '',
+        telegram_chat_id: '',
+        email: '',
+        phone: '',
+        discord_webhook: '',
+        webhook_url: '',
+        webhook_token: '',
+        webhook_signing_secret: ''
+      }
     }
   },
   computed: {
@@ -894,6 +906,7 @@ export default {
   },
   created () {
     this.loadCredentials()
+    this.loadUserNotificationSettings()
     if (this.editBot) {
       this.applyEditBot()
     } else {
@@ -1140,6 +1153,32 @@ export default {
         // 静默失败：用户没收藏过任何自选时也可能 401/空，保持空数组即可
       } finally {
         this.loadingWatchlist = false
+      }
+    },
+    async loadUserNotificationSettings () {
+      try {
+        const res = await getNotificationSettings()
+        if (res.code === 1 && res.data) {
+          this.userNotificationSettings = {
+            default_channels: res.data.default_channels || ['browser'],
+            telegram_bot_token: res.data.telegram_bot_token || '',
+            telegram_chat_id: res.data.telegram_chat_id || '',
+            email: res.data.email || '',
+            phone: res.data.phone || '',
+            discord_webhook: res.data.discord_webhook || '',
+            webhook_url: res.data.webhook_url || '',
+            webhook_token: res.data.webhook_token || '',
+            webhook_signing_secret: res.data.webhook_signing_secret || ''
+          }
+          if (!this.editBot) {
+            this.notificationChannels = [...this.userNotificationSettings.default_channels]
+            if (this.userNotificationSettings.webhook_url && !this.notificationChannels.includes('webhook')) {
+              this.notificationChannels.push('webhook')
+            }
+          }
+        }
+      } catch (e) {
+        // Silently fail
       }
     },
     filterSymbolOption (input, option) {
@@ -1435,7 +1474,16 @@ export default {
         },
         notification_config: {
           channels: this.notificationChannels || ['browser'],
-          targets: this.editBot?.notification_config?.targets || {}
+          targets: {
+            email: this.userNotificationSettings.email || this.editBot?.notification_config?.targets?.email || '',
+            phone: this.userNotificationSettings.phone || this.editBot?.notification_config?.targets?.phone || '',
+            telegram: this.userNotificationSettings.telegram_chat_id || this.editBot?.notification_config?.targets?.telegram || '',
+            telegram_bot_token: this.userNotificationSettings.telegram_bot_token || this.editBot?.notification_config?.targets?.telegram_bot_token || '',
+            discord: this.userNotificationSettings.discord_webhook || this.editBot?.notification_config?.targets?.discord || '',
+            webhook: this.userNotificationSettings.webhook_url || this.editBot?.notification_config?.targets?.webhook || '',
+            webhook_token: this.userNotificationSettings.webhook_token || this.editBot?.notification_config?.targets?.webhook_token || '',
+            webhook_signing_secret: this.userNotificationSettings.webhook_signing_secret || this.editBot?.notification_config?.targets?.webhook_signing_secret || ''
+          }
         },
         bot_type: this.botType
       }

@@ -974,7 +974,8 @@ export default {
         phone: '',
         discord_webhook: '',
         webhook_url: '',
-        webhook_token: ''
+        webhook_token: '',
+        webhook_signing_secret: ''
       }
     }
   },
@@ -1088,7 +1089,8 @@ export default {
             phone: res.data.phone || '',
             discord_webhook: res.data.discord_webhook || '',
             webhook_url: res.data.webhook_url || '',
-            webhook_token: res.data.webhook_token || ''
+            webhook_token: res.data.webhook_token || '',
+            webhook_signing_secret: res.data.webhook_signing_secret
           }
         }
       } catch (e) {
@@ -1414,6 +1416,9 @@ export default {
             if (this.userNotificationSettings.webhook_token) {
               targets.webhook_token = this.userNotificationSettings.webhook_token
             }
+            if (this.userNotificationSettings.webhook_signing_secret) {
+              targets.webhook_signing_secret = this.userNotificationSettings.webhook_signing_secret
+            }
           }
 
           const data = {
@@ -1607,7 +1612,8 @@ export default {
                 phone: this.userNotificationSettings.phone || '',
                 discord: this.userNotificationSettings.discord_webhook || '',
                 webhook: this.userNotificationSettings.webhook_url || '',
-                webhook_token: this.userNotificationSettings.webhook_token || ''
+                webhook_token: this.userNotificationSettings.webhook_token || '',
+                webhook_signing_secret: this.userNotificationSettings.webhook_signing_secret || ''
               }
             },
             is_active: true
